@@ -2,11 +2,11 @@
 
 > This is a tutorial on how to start testing your React.js code using [Enzyme](http://airbnb.io/enzyme), [Mocha](https://mochajs.org/), and [Chai](http://chaijs.com/).
 
-1. Let's start by creating a package.json file
+* Let's start by creating a package.json file
 ```
 npm init
 ```
-2. Once your package.json file is created, let's install our dependencies.
+* Once your package.json file is created, let's install our dependencies.
 ```
 // React
 npm install --save react react-dom
@@ -15,7 +15,7 @@ npm install --save-dev babel babel-preset-es2015 babel-preset-airbnb babel-regis
 // Testing
 npm install --save-dev mocha chai enzyme jsdom react-addons-test-utils
 ```
-3. Create a .babelrc file for our presets in your root directory
+* Create a .babelrc file for our presets in your root directory
 ```
 touch .babelrc
 // open your file in your preferred text editor and add the following:
@@ -23,18 +23,18 @@ touch .babelrc
   presets: ["airbnb"]
 }
 ```
-4. Let's add an 'npm run' script to our package.json. In the scripts area, let's add the following key and value
+* Let's add an 'npm run' script to our package.json. In the scripts area, let's add the following key and value
 ```
 "test": "mocha test/.setup.js test/**/*-test.js"
 ```
   * What the above says is run .setup.js with Mocha first, and then all the tests. All our tests with have the following syntax NAMEOFTEST-test.js.
   * You'll notice we don't have a test directory set up. Let's do that now.
-5. Set up a test directory in your root directory
+* Set up a test directory in your root directory
 ```
 mkdir test
 cd test
 ```
-6. Create a .setup.js file. By doing so, we use jsdom as a headless browser to test our components without the need for an actual DOM via a browser.
+* Create a .setup.js file. By doing so, we use jsdom as a headless browser to test our components without the need for an actual DOM via a browser.
 ```
 touch .setup.js
 // In the .setup.js file, add the following code:
@@ -54,4 +54,4 @@ global.navigator = {
 };
 documentRef = document;
 ```
-7. That's pretty much it! We can now add our test files and use React, Chai, and Enzyme to test our components. See below for an example:
+* That's pretty much it! We can now add our test files and use React, Chai, and Enzyme to test our components.
