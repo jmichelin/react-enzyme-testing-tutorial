@@ -4,7 +4,7 @@
   "description": "Tutorial for setting up a React TDD/BDD environment",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/.setup.js test/**/*-test.js"
   },
   "repository": {
     "type": "git",
