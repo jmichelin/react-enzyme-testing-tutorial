@@ -1,101 +1,97 @@
 # React Testing with Enzyme
 
-> This is a tutorial on how to start testing your React.js code using [Enzyme](http://airbnb.io/enzyme), [Mocha](https://mochajs.org/), and [Chai](http://chaijs.com/).
+> This portion of the tutorial adds [Webpack](https://webpack.github.io/) to our project and uses a Node/Express server to serve our files. This tutorial assumes you've already gone through the tutorial on the 'dev' branch.
 
-* Let's start by creating a package.json file
+### Dependencies / Configuration
+* Let's start by installing our dependencies
+  * Note: We're going to write our server in ES6 and compile it with Babel, hence the 'babel-register' package
 ```
-npm init
+// Server
+npm install --save express babel-register
+// Webpack
+npm install --save-dev webpack
+// Other Babel Presets
+npm install --save-dev babel-core babel-loader babel-preset-react babel-polyfill
 ```
-* Once your package.json file is created, let's install our dependencies.
+* Create a webpack.config.js file in your root directory and populate it with the following code
 ```
-// React
-npm install --save react react-dom
-// Babel
-npm install --save-dev babel babel-preset-es2015 babel-preset-airbnb babel-register
-// Testing
-npm install --save-dev mocha chai enzyme jsdom react-addons-test-utils
+module.exports = {
+  devtool: 'source-map',
+  entry: [
+    './src/index.js'
+  ],
+  output: {
+    path: __dirname + '/src/dist',
+    filename: 'bundle.js',
+  },
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel'
+      }
+    ]
+  }
+}
 ```
-* Create a .babelrc file for our presets in your root directory
+* Add some of the following presets to our .babelrc file.
+  * Note: you could've added a query: { presets: [PRESETNAMES] } within your webpack.config.js file, but we've opted to break this out into a .babelrc file instead.
 ```
-touch .babelrc
-// open your file in your preferred text editor and add the following:
+// Our .babelrc file now looks like this
 {
-  presets: ["airbnb"]
+  presets: ["react", "es2015", "airbnb"]
 }
 ```
-* Let's add an 'npm run' script to our package.json. In the scripts area, let's add the following key and value
-```
-"test": "mocha test/.setup.js test/**/*-test.js"
-```
-  * What the above says is run .setup.js with Mocha first, and then all the tests. All our tests with have the following syntax NAMEOFTEST-test.js.
-  * You'll notice we don't have a test directory set up. Let's do that now.
-* Set up a test directory in your root directory
-```
-mkdir test
-cd test
-```
-* Create a .setup.js file. By doing so, we use jsdom as a headless browser to test our components without the need for an actual DOM via a browser.
-```
-touch .setup.js
-// In the .setup.js file, add the following code:
-require('babel-register')();
-var jsdom = require('jsdom').jsdom;
-var exposedProperties = ['window', 'navigator', 'document'];
-global.document = jsdom('');
-global.window = document.defaultView;
-Object.keys(document.defaultView).forEach((property) => {
-  if (typeof global[property] === 'undefined') {
-    exposedProperties.push(property);
-    global[property] = document.defaultView[property];
-  }
-});
-global.navigator = {
-  userAgent: 'node.js'
-};
-documentRef = document;
-```
-* That's pretty much it! We can now add our test files and use React, Chai, and Enzyme to test our components.
 
-### Testing your components
-* Let's start by creating some components. You can have them in any directory because we'll be importing them into our test files later on. I decided to create a 'src' directory and put my components in there.
+### Server
+Now that we have our dependencies and config files set up, let's focus on our server.
+* Create a server folder in the root directory with an index.js and server.js file. Our index.js file will use babel-register and require our server.js file as shown below.
 ```
-mkdir src
-cd src
-touch TestComponent.js
+// index.js
+require('babel-register');
+require('./server');
 ```
-* Our code for TestComponent.js will look like the following:
+* Our server.js file will serve a basic index.html page on port 8080. You can view the file above.
+
+### Client
+* Let's start by tying up loose ends. We're serving up an index.html file within our src directory. Create that now.
+  * We're adding a script tag to our bundled file, as well as an entry point into the app with the id being 'root'
 ```
-import React from 'react';
-class TestComponent extends React.Component {
-  render(){
-    return(
-      <div className='test'>
-        <img src='http://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/614.png&w=350&h=254' />
-      </div>
-    )
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Testing</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="./dist/bundle.js"></script>
+  </body>
+</html>
+```
+* Because we noted our entry point in the webpack.config.js file as 'src/index.js', let's create that entry point aka React component now.
+  * Note: Feel free to change TestComponent.js > Index.js. Just know you'll need to render it to the 'root' div in our index.html file.
+  * I opted to create a new component called Index.js, below is the code for it
+  ```
+  import React from 'react';
+  import { render } from 'react-dom';
+  class Index extends React.Component {
+    render(){
+      return(
+        <div>
+          Hello from index component!
+        </div>
+      )
+    }
   }
-}
-export default TestComponent;
+  render(
+    <Index />,
+    document.getElementById('root')
+  )
+  ```
+* That's pretty much it. You'll need to bundle your files using webpack and run your server, but you can now test all your components
 ```
-* Let's now create a test for TestComponent. Add a file in your test directory (I called mine TestComponent-test.js).
-* Import our React, chai, enzyme, and the component to test.
-```
-import React from 'react';
-import { expect } from 'chai';
-import { shallow, mount, render } from 'enzyme';
-import TestComponent from './../src/TestComponent';
-```
-  * Note: If you're using functional stateless components, you'll need to import them as you would in your application i.e. import { TestComponent } from 'src';
-* Let's now add some tests that check whether TestComponent is indeed a component with a classname of 'test' and contains an image as its first child.
-```
-describe('Test Component', () => {
-  it('returns component with .test class', () => {
-    const wrapper = shallow(<TestComponent />);
-    expect(wrapper.is('.test')).to.equal(true);
-  });
-  it('renders an img as its first child', () => {
-    const wrapper = shallow(<TestComponent />);
-    expect(wrapper.find('div').childAt(0).type()).to.equal('img');
-  });
-});
+webpack -w
+npm run test
 ```
