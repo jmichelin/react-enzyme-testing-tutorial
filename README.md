@@ -95,3 +95,4 @@ require('./server');
 webpack -w
 npm run test
 ```
+![hooray](https://github.com/carlbernardo/react-enzyme-testing-tutorial/blob/webpack-setup/src/static/hooray.png)
